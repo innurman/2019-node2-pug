@@ -55,6 +55,7 @@ app.listen(port, () => {
 
 // http://127.0.0.1:3000/pug/list
 // http://127.0.0.1:3000/pug/write
+/*
 app.get(["/pug/", "/pug/:page"], (req, res) => {
     let page = req.params.page ? req.params.page : "list";
     let vals = {};
@@ -66,6 +67,48 @@ app.get(["/pug/", "/pug/:page"], (req, res) => {
                 {id:2, title: "두번째 글", writer: "관리자2", wdate: "2020-01-04", rnum: 6},
                 {id:3, title: "세번째 글", writer: "관리자3", wdate: "2020-01-05", rnum: 5},
             ];
+            res.render("list.pug", vals); // -> views/list.pug
+            break;
+        case "write":
+            vals.title = "게시글 작성 입니다";
+            res.render("write.pug", vals); // -> views/write.pug
+            break;
+        default:
+            res.redirect("/"); // -> public/index.html
+            break;
+    }
+});
+*/
+
+// async
+app.get(["/pug/", "/pug/:page"], async (req, res) => {
+    let page = req.params.page ? req.params.page : "list";
+    let vals = {};
+    switch(page) {
+        case "list":
+            vals.title = "게시글 리스트 입니다";
+
+            /*
+            vals.lists = [
+                {id:1, title: "첫번째 글", writer: "관리자1", wdate: "2020-01-03", rnum: 5},
+                {id:2, title: "두번째 글", writer: "관리자2", wdate: "2020-01-04", rnum: 6},
+                {id:3, title: "세번째 글", writer: "관리자3", wdate: "2020-01-05", rnum: 5},
+            ];
+            */
+           
+            let sql = "SELECT * FROM board ORDER BY id DESC";
+            const connect = await pool.getConnection();
+            const result = await connect.query(sql);
+
+            //res.render("list.pug", vals); // -> views/list.pug
+            //res.json(result);
+            // -> http://127.0.0.1:3000/pug
+            
+            //res.json(result[0]);
+            // http://127.0.0.1:3000/pug
+
+            // -> [x] vals = result[0];
+            vals.list = result[0];
             res.render("list.pug", vals); // -> views/list.pug
             break;
         case "write":
@@ -287,3 +330,14 @@ app.get("/sqltest", async (req, res) => {
 });
 
 
+app.post("/board", async (req, res) => {
+    let sql = 'INSERT INTO board SET title=?, writer=?, wdate=? ';
+    let val = [req.body.title, req.body.writer, new Date()];
+    
+    const connect =await pool.getConnection();
+    const result = await connect.query(sql, val);
+
+    connect.release();
+    //res.json();
+    res.redirect("/pug");
+})
