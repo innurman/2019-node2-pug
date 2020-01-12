@@ -1,23 +1,23 @@
 extends ./layout/board.pug
 block title
-    .jumbotron.my-2
-        h2= title
-            small - 게시글 입니다.
+	.jumbotron.my-2
+		h2= title
+			small - 게시글 입니다.
 block content
-    table.table.table-bordered
-        thead
-            tr
-                th 번호
-                th 제목
-                th 작성자
-                th 작성일
-                th 조회수
-        tbody
-            each list in lists
-                tr
-                    td= list.id
-                    td
-                        a(href=`/pug/view/${list.id}`)= list.title
-                    td= list.writer
-                    td= list.wdate
-                    td= list.rnum
+	table.table.table-bordered
+		thead
+			tr
+				th 번호
+				th 제목
+				th 작성자
+				th 작성일
+				th 조회수
+		tbody
+			each list in lists
+				tr
+					td= list.id
+					td
+						a(href=`/pug/view/${list.id}`)= list.title
+					td= list.writer
+					td= list.wdate
+					td= list.rnum

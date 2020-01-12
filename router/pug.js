@@ -1,129 +1,101 @@
 const express = require('express');
 const router = express.Router();
-
-// Moved from app2.pug
 const { pool, sqlErr } = require('../modules/mysql-conn');
 
 /*
-/pug/update/4
-----app.js----
-const pugRouter = require("./router/pug");
-app.use("/pug", pugRouter);
+/pug/update/4 <- 요청처리시
+----router.js----
+const pugRouter = reqire("./router/pug");
+router.use("/pug", pugRouter);
 */
 
-// app.get(["/pug", "/pug/:page"]
 router.get(["/", "/:page"], async (req, res) => {
-    let page = req.params.page ? req.params.page : "list";
-    let vals = {};
-    switch(page) {
-        case "list":
-            vals.title = "게시글 리스트 입니다";
-            let sql = "SELECT * FROM board ORDER BY id DESC";
-            const connect = await pool.getConnection();
-            const result = await connect.query(sql);
-            connect.release();
-            vals.lists = result[0];
-            res.render("list.pug", vals); // -> views/list.pug
-            break;
-        case "write":
-            vals.title = "게시글 작성 입니다";
-            res.render("write.pug", vals); // -> views/write.pug
-            break;
-        default:
-            res.redirect("/pug"); // -> public/index.html
-            break;
-    }
+	let page = req.params.page ? req.params.page : "list";
+	let vals = {};
+	switch(page) {
+		case "list":
+			vals.title = "게시글 리스트 입니다.";
+			let sql = "SELECT * FROM board ORDER BY id DESC";
+			const connect = await pool.getConnection();
+			const result = await connect.query(sql);
+			connect.release();
+			vals.lists = result[0];
+			res.render("list.pug", vals);
+			break;
+		case "write":
+			vals.title = "게시글 작성 입니다.";
+			res.render("write.pug", vals);
+			break;
+		default:
+			res.redirect("/pug");
+			break;
+	}
 });
 
 router.get("/view/:id", async (req, res) => {
-    let vals = {
-        title: "게시글 상세보기",
-    }
-    let id  = req.params.id;
-    let sql = "SELECT * FROM board WHERE id="+id;
-    const connect = await pool.getConnection();
-    const result = await connect.query(sql);
-    connect.release();
-
-    //res.json(result[0]);
-    vals.data = result[0][0];
-    res.render("view.pug", vals);
+	let vals = {
+		title: "게시글 상세 보기",
+	}
+	let id = req.params.id;
+	let sql = "SELECT * FROM board WHERE id="+id;
+	const connect = await pool.getConnection();
+	const result = await connect.query(sql);
+	connect.release();
+	vals.data = result[0][0];
+	res.render("view.pug", vals);
 });
 
 router.get("/delete/:id", async (req, res) => {
-    let id  = req.params.id;
-    let sql = "DELETE FROM board WHERE id="+id;
-    const connect = await pool.getConnection();
-    const result = await connect.query(sql);
-    connect.release();
-
-    //res.json(result[0]);
-    if(result[0].affectedRows == 1) {
-        res.redirect("/pug");
-    }
-    else {
-        res.send("삭제에 실패하였습니다.");
-    }
-    //res.render("view.pug", )
+	let id = req.params.id;
+	let sql = "DELETE FROM board WHERE id="+id;
+	const connect = await pool.getConnection();
+	const result = await connect.query(sql);
+	connect.release();
+	if(result[0].affectedRows == 1) {
+		res.redirect("/pug");
+	}
+	else {
+		res.send("삭제에 실패하였습니다.");
+	}
 });
 
-// Update - GET
-// http://127.0.0.1:3000/pug/update/15
 router.get("/update/:id", async (req, res) => {
-    let vals = {
-        title: "게시글 수정",
-    }
-    const id  = req.params.id; 
-    const sql = "SELECT * FROM board WHERE id="+id;
-    const connect = await pool.getConnection();
-    const result = await connect.query(sql);
-    connect.release();
-
-    //res.json(result[0]);
-    vals.data = result[0][0];
-    res.render("update.pug", vals);
+	const vals = {
+		title: "게시글 수정",
+	}
+	const id = req.params.id;
+	const sql = "SELECT * FROM board WHERE id="+id;
+	const connect = await pool.getConnection();
+	const result = await connect.query(sql);
+	connect.release();
+	vals.data = result[0][0];
+	res.render("update.pug", vals);
 });
 
-// Update - GET
-// Cannot POST /pug/update
 router.post("/update", async (req, res) => {
-    const sqlVals = [];
-    sqlVals.push(req.body.title);
-    sqlVals.push(req.body.content);
-    sqlVals.push(req.body.id);
-    const sql = "UPDATE board SET title=?, content=? WHERE id=?";
-    const connect = await pool.getConnection();
-    const result = await connect.query(sql, sqlVals);
-    connect.release();
-
-    //res.json(result[0]);
-    // http://127.0.0.1:3000/pug/update/15
-    // -> http://127.0.0.1:3000/pug/update
-    // {"fieldCount":0,"affectedRows":1,"insertId":0,"info":"Rows matched: 1  Changed: 1  Warnings: 0","serverStatus":2,"warningStatus":0,"changedRows":1}
-
-    if(result[0].changedRows == 1) {
-        res.redirect("/pug")
-    }
-    else {
-        res.send("수정에 실패!")
-    }
+	const sqlVals = [];
+	sqlVals.push(req.body.title);
+	sqlVals.push(req.body.content);
+	sqlVals.push(req.body.id);
+	const sql = "UPDATE board SET title=?, content=? WHERE id=?";
+	const connect = await pool.getConnection();
+	const result = await connect.query(sql, sqlVals);
+	connect.release();
+	if(result[0].changedRows == 1) {
+		res.redirect("/pug");
+	}
+	else {
+		res.send("수정에 실패하였습니다.");
+	}
 });
 
 router.post("/create", async (req, res) => {
-    //let sql = 'INSERT INTO board SET title=?, writer=?, wdate=? ';
-    //let val = [req.body.title, req.body.writer, new Date()];
-    
-    // content 추가
-    let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=? ";
-    let val = [req.body.title, req.body.writer, new Date(), req.body.content];
-    
-    const connect = await pool.getConnection();
-    const result = await connect.query(sql, val);
-    connect.release();
-    
-    //res.json();
-    res.redirect("/pug");
-})
+	let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?";
+	let val = [req.body.title, req.body.writer, new Date(), req.body.content];
+	const connect = await pool.getConnection();
+	const result = await connect.query(sql, val);
+	connect.release();
+	res.redirect("/pug");
+});
 
 module.exports = router;
-
