@@ -5,7 +5,6 @@ const port = 3000;
 const host = '127.0.0.1';
 
 const { pool, sqlErr } = require('./modules/mysql-conn');
-const routerSample = require("./router/pug");
 
 // 서버 구동
 app.listen(port, () => {
@@ -25,9 +24,6 @@ app.use('/', express.static('./public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.locals.pretty = true;
-
-// http://127.0.0.1:3000/router/sample
-app.use("/router", routerSample);
 
 app.get(["/pug", "/pug/:page"], async (req, res) => {
     let page = req.params.page ? req.params.page : "list";
