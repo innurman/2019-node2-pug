@@ -1,11 +1,11 @@
 extends ./layout/board.pug
 block title
-    div.jumbotron.my-2
+    .jumbotron.my-2
         h2= title
-            small - 게시판 리스트
+            small - 게시글 입니다.
 block content
     table.table.table-bordered
-        thread
+        thead
             tr
                 th 번호
                 th 제목
@@ -16,10 +16,8 @@ block content
             each list in lists
                 tr
                     td= list.id
-                    td= list.title
+                    td
+                        a(href=`/pug/view/${list.id}`)= list.title
                     td= list.writer
                     td= list.wdate
                     td= list.rnum
-                    
-                            
-
