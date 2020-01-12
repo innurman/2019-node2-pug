@@ -8,7 +8,7 @@ const { pool, sqlErr } = require('./modules/mysql-conn');
 
 // 서버 구동
 app.listen(port, () => {
-	console.log(`http://${host}:${port}`);
+    console.log(`http://${host}:${port}`);
 });
 
 
@@ -20,6 +20,7 @@ app.set('views', './views');
 app.use('/', express.static('./public'));
 
 // bodyParser 세팅
+// -> post--body 사용 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.locals.pretty = true;
@@ -76,6 +77,45 @@ app.get("/pug/delete/:id", async (req, res) => {
     //res.render("view.pug", )
 });
 
+// Update - GET
+// http://127.0.0.1:3000/pug/update/15
+app.get("/pug/update/:id", async (req, res) => {
+    let vals = {
+        title: "게시글 수정",
+    }
+    const id  = req.params.id; 
+    const sql = "SELECT * FROM board WHERE id="+id;
+    const connect = await pool.getConnection();
+    const result = await connect.query(sql);
+
+    //res.json(result[0]);
+    vals.data = result[0][0];
+    res.render("update.pug", vals);
+});
+
+// Update - GET
+// Cannot POST /pug/update
+app.post("/pug/update", async (req, res) => {
+    const sqlVals = [];
+    sqlVals.push(req.body.title);
+    sqlVals.push(req.body.content);
+    sqlVals.push(req.body.id);
+    const sql = "UPDATE board SET title=?, content=? WHERE id=?";
+    const connect = await pool.getConnection();
+    const result = await connect.query(sql, sqlVals);
+
+    //res.json(result[0]);
+    // http://127.0.0.1:3000/pug/update/15
+    // -> http://127.0.0.1:3000/pug/update
+    // {"fieldCount":0,"affectedRows":1,"insertId":0,"info":"Rows matched: 1  Changed: 1  Warnings: 0","serverStatus":2,"warningStatus":0,"changedRows":1}
+
+    if(result[0].changedRows == 1) {
+        res.redirect("/pug")
+    }
+    else {
+        res.send("수정에 실패!")
+    }
+});
 
 /*
 // http://127.0.0.1:3000/sqltest
