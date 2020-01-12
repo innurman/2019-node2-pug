@@ -1,3 +1,19 @@
+function delList(id) {
+    $.ajax({
+        url: '/api/delete',
+        type: "DELETE",
+        dataType: "json",
+        data: {id: id},
+        success: function(res) {
+            console.log(res);
+            getData();
+        },
+        error: function(xhr) {
+            console.log(xhr);
+        }
+    });
+}
+
 $("#btSave").click(function(){
     var id = document.form1.id.value;
     var type = "POST";
@@ -7,8 +23,8 @@ $("#btSave").click(function(){
         url = "/api/put";
     }
     $.ajax({
-        url: "/api/post",
-        type: "POST",
+        url: url,
+        type: type,
         dataType: "json",
         data: {
             id: id,
@@ -49,16 +65,21 @@ function makeList(res) {
     for(var i in res.data) {
         html += '<tr>';
         html += '<td>'+res.data[i].id+'</td>';
-        html += '<td>'+res.data[i].title+'</td>';
+        html += '<td onclick="getData('+res.data[i].id+');">'+res.data[i].title+'</td>';
         html += '<td>'+res.data[i].writer+'</td>';
         html += '<td>'+res.data[i].wdate+'</td>';
         html += '<td>'+res.data[i].rnum+'</td>';
-        html += '<td><button class="btn btn-sm btn-danger" data-id="'+res.data[i].id+'">삭제</button></td>';
+        html += '<td><button class="btn btn-sm btn-danger" onclick="delList('+res.data[i].id+');">삭제</button></td>';
         html += '</tr>';
     }
     $("#listTb > tbody").html(html);
 }
 function viewList(res) {
-    console.log(res);
+    //console.log(res);
+    var f = document.form1;
+    f.id.value = res.data[0].id;
+    f.title.value = res.data[0].title;
+    f.content.value = res.data[0].content;
+    f.writer.value = res.data[0].writer;
 }
 getData();

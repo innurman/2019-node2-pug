@@ -1,5 +1,5 @@
-// supervisor app2
-const express = require('express'); // from node_modules/*
+const express = require('express');
+const methodOverride = require('method-override');
 const app = express();
 const port = 3000;
 const host = '127.0.0.1';
@@ -26,31 +26,20 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.locals.pretty = true;
 
+// https://www.npmjs.com/package/method-override
+// form 에서 PUT, DELETE 를 보낼때 사용됨. (ajax 에서는 불필요하다)
+app.use(methodOverride((req, res) => {
+    if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+      // look in urlencoded POST bodies and delete it
+      let method = req.body._method
+      delete req.body._method
+      return method
+    }
+}));
+
+
 /* Router */
 const pugRouter = require("./router/pug");
 const apiRouter = require("./router/api");
 app.use("/pug", pugRouter);
 app.use("/api", apiRouter);
-
-// http://127.0.0.1:3000/sqltest
-app.get("/sqltest", async (req, res) => {
-    let sql = "INSERT INTO board SET title=?, writer=?, wdate=? ";
-    let sqlVals = ["제목입니다22", "관리자22", "2020-01-05 15:55:00"];
-    
-    // await() => sync
-    const connect = await pool.getConnection();
-    //console.log(connect);
-    const result = await connect.query(sql, sqlVals);
-
-    // try {
-    //     const result = await connect.query(sql);
-
-    // }
-    // catch(err) {
-    //     sqlErr(err);
-    // }
-
-    connect.release();
-    res.json(result);
-});
-

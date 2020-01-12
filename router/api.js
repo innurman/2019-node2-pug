@@ -49,8 +49,27 @@ router.post("/post", async (req, res) => {
 // method-override
 // https://www.npmjs.com/package/method-override
 // : override with POST having ?_method=DELETE
-//router.put();
-//router.delete();
-
+router.delete("/delete", async (req, res) => {
+    // res.json({
+    //     id: req.body.id;
+    // });
+    let sql = "DELETE FROM board WHERE id="+req.body.id;
+    let connect = await pool.getConnection();
+    let result = await connect.query(sql);
+    connect.release();
+    res.json(result[0]);
+});
+router.put("/put", async (req, res) => {
+    let id = req.body.id;
+    let title = req.body.title;
+    let content = req.body.content;
+    let writer = req.body.writer;
+    let sql = "UPDATE board SET title=?, content=?, writer=? WHERE id=?";
+    let sqlVals = [title, content, writer, id];
+    let connect = await pool.getConnection();
+    let result = await connect.query(sql, sqlVals);
+    connect.release();
+    res.json(result[0]);
+});
 
 module.exports = router;
