@@ -21,6 +21,7 @@ router.get(["/", "/:page"], async (req, res) => {
             let sql = "SELECT * FROM board ORDER BY id DESC";
             const connect = await pool.getConnection();
             const result = await connect.query(sql);
+            connect.release();
             vals.lists = result[0];
             res.render("list.pug", vals); // -> views/list.pug
             break;
@@ -42,6 +43,7 @@ router.get("/view/:id", async (req, res) => {
     let sql = "SELECT * FROM board WHERE id="+id;
     const connect = await pool.getConnection();
     const result = await connect.query(sql);
+    connect.release();
 
     //res.json(result[0]);
     vals.data = result[0][0];
@@ -53,6 +55,7 @@ router.get("/delete/:id", async (req, res) => {
     let sql = "DELETE FROM board WHERE id="+id;
     const connect = await pool.getConnection();
     const result = await connect.query(sql);
+    connect.release();
 
     //res.json(result[0]);
     if(result[0].affectedRows == 1) {
@@ -74,6 +77,7 @@ router.get("/update/:id", async (req, res) => {
     const sql = "SELECT * FROM board WHERE id="+id;
     const connect = await pool.getConnection();
     const result = await connect.query(sql);
+    connect.release();
 
     //res.json(result[0]);
     vals.data = result[0][0];
@@ -90,6 +94,7 @@ router.post("/update", async (req, res) => {
     const sql = "UPDATE board SET title=?, content=? WHERE id=?";
     const connect = await pool.getConnection();
     const result = await connect.query(sql, sqlVals);
+    connect.release();
 
     //res.json(result[0]);
     // http://127.0.0.1:3000/pug/update/15
@@ -114,8 +119,8 @@ router.post("/create", async (req, res) => {
     
     const connect = await pool.getConnection();
     const result = await connect.query(sql, val);
-
     connect.release();
+    
     //res.json();
     res.redirect("/pug");
 })

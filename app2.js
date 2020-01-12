@@ -28,7 +28,9 @@ app.locals.pretty = true;
 
 /* Router */
 const pugRouter = require("./router/pug");
+const apiRouter = require("./router/api");
 app.use("/pug", pugRouter);
+app.use("/api", apiRouter);
 
 // http://127.0.0.1:3000/sqltest
 app.get("/sqltest", async (req, res) => {
