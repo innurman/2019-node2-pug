@@ -1,0 +1,20 @@
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize({
+    host: "localhost",
+    port: 3306,
+    dialect: 'mysql',
+    username: "root",
+    password: "000000",
+    database: "node",
+    pool: {
+        max: 10,
+        min: 0
+    }
+});
+
+(async () => {
+    let result = await sequelize.authenticate();
+    if(result) console.log("success");
+})();
+
+module.exports = {sequelize, Sequelize};
