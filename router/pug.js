@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool, sqlErr } = require('../modules/mysql-conn');
+console.log(__dirname);
 
 /*
 /pug/update/4 <- 요청처리시
@@ -36,6 +37,8 @@ router.get("/view/:id", async (req, res) => {
 	let vals = {
 		title: "게시글 상세 보기",
 	}
+	console.log(req.headers);
+	console.log(req.headers.hot.split[':']);
 	let id = req.params.id;
 	let sql = "SELECT * FROM board WHERE id="+id;
 	const connect = await pool.getConnection();
