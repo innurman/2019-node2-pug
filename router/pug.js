@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+// https://www.npmjs.com/package/date-time
+const dateTime = require('date-time');
 const { pool, sqlErr } = require(path.join(__dirname,'../modules/mysql-conn'));
 // 비구조화 할당 
 const { upload } = require(path.join(__dirname, '../modules/multer-conn'));
@@ -26,7 +28,15 @@ router.get(["/", "/:page"], async (req, res) => {
 			for(let v of result[0]) {
 				if(v.realfile) v.fileIcon = true;
 			}
-			vals.lists = result[0];
+
+			// vals.lists = result[0];
+			// https://www.npmjs.com/package/date-time
+			const resultData = result[0].map((v) => {
+				v.wdate = dateTime(v.wdate);
+				// -> 2020-01-19 15:11:59
+				return v;
+			});
+			vals.lists = resultData;
 			res.render("list.pug", vals);
 			break;
 		case "write":
