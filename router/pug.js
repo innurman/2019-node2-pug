@@ -123,7 +123,7 @@ router.post("/update", async (req, res) => {
 // multer
 // req.file.originalname, req.file.filename
 router.post("/create", upload.single("upfile"), async (req, res) => {
-	//console.log(req.fileUploadCheck);
+	//console.log(req.fileUploadChk);
 	let oriFile = '';
 	let realFile = '';
 	if(req.file) {
@@ -137,6 +137,19 @@ router.post("/create", upload.single("upfile"), async (req, res) => {
 	const result = await connect.query(sql, val);
 	connect.release();
 	res.redirect("/pug");
+});
+
+// http://127.0.0.1:3000/pug/view/24
+router.get("/download/:id", async (req, res) => {
+	let id = req.params.id;
+	let sql = "SELECT realfile, orifile FROM board WHERE id="+id;
+	const connect = await pool.getConnection();
+	const result  = await connect.query(sql);
+
+	//res.json(result[0]);
+	let filepath = path.join(__dirname, "../uploads/"+result[0][0].realfile.split("-")[0]); // ES5
+	let file = filepath + "/" + result[0][0].realfile;
+	res.download(file, result[0][0].orifile);
 });
 
 module.exports = router;
