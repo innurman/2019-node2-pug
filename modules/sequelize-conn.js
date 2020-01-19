@@ -13,8 +13,8 @@ const sequelize = new Sequelize({
 });
 
 (async () => {
-    let result = await sequelize.authenticate();
-    if(result) console.log("success");
+    await sequelize.authenticate();
+	console.log("success");
 })();
 
 module.exports = {sequelize, Sequelize};

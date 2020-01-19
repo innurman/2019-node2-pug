@@ -2,12 +2,8 @@ const path = require('path');
 //const { sequelize, Sequelize } = require(path.join(__dirname, "index"))
 const { sequelize, Sequelize } = require(path.join(__dirname, "../modules/sequelize-conn"));
 // See the https://sequelize.org/master/identifiers
-const Model = Sequelize.Model;
+class User extends Sequelize.Model {}
 
-// ES6 class
-class User extends Model {
-
-}
 
 User.init({
     username: {type: Sequelize.STRING},
@@ -17,7 +13,7 @@ User.init({
     sequelize,
     modelName: "user"
 });
-User.sync({force: true});
+User.sync({force: false});
 
 
 // C:\Users\Administrator\Documents\node-es6\04.pug\modules
@@ -28,4 +24,5 @@ User.sync({force: true});
 // Executing (default): SHOW INDEX FROM `Users`
 
 
-module.exports = {User};
+//module.exports = {User};
+module.exports = User;
