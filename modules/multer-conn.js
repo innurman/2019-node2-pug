@@ -17,27 +17,24 @@ const filename = (req, file, cb) => {
     cb(null, getFile(file.originalname));
 }
 
-//
-// https://www.npmjs.com/package/multer
-//
-// DiskStorage
-// The disk storage engine gives you full control on storing files to disk.
+// fileFilter
+const fileFilter = (req, file, cb) => {
+    let allowExt = ['.jpg', '.jmpeg', '.gif', '.png', '.zip', '.txt', '.pdf', '.ppt'];
+    let ext = path.extname(file.originalname).toLocaleLowerCase();
+    if(allowExt.indexOf(ext) > -1) {
+        cb(null, true);
+    }
+    else {
+        cb(null, false);
+    }
+}
 
-// var storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, '/tmp/my-uploads')
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.fieldname + '-' + Date.now())
-//   }
-// })
-// var upload = multer({ storage: storage })
-//
+// https://www.npmjs.com/package/multer
 const storage = multer.diskStorage({destination, filename});
 
 // TypeError: storage.single is not a function
 // at Object.<anonymous> (C:\Users\Administrator\Documents\node-es6\04.pug\router\pug.js:107:32)
-const upload = multer({storage});
+const upload = multer({storage, fileFilter});
 
 function getPath() {
     // C:\Users\Administrator\Documents\node-es6\04.pug\modules

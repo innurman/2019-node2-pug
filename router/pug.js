@@ -23,6 +23,9 @@ router.get(["/", "/:page"], async (req, res) => {
 			const connect = await pool.getConnection();
 			const result = await connect.query(sql);
 			connect.release();
+			for(let v of result[0]) {
+				if(v.realfile) v.fileIcon = true;
+			}
 			vals.lists = result[0];
 			res.render("list.pug", vals);
 			break;
@@ -50,7 +53,18 @@ router.get("/view/:id", async (req, res) => {
 	result = await connect.query(sql);
 	connect.release();
 	vals.data = result[0][0];
-	res.render("view.pug", vals);
+	if(vals.data.realfile) {
+		let file = vals.data.realfile.split("-");
+		let filepath = "/uploads/"+file[0]+"/"+vals.data.realfile;
+		vals.data.filepath = filepath;
+		let img = ['.jpg', '.jpeg', '.png', '.gif'];
+		let ext = path.extname(vals.data.realfile).toLowerCase();
+		if(img.indexOf(ext) > -1) vals.data.fileChk = "img";
+		else vals.data.fileChk = "file";
+	}
+	else vals.data.fileChk = "";
+	//res.json(vals);
+	res.render("view.pug", vals);	
 });
 
 router.get("/delete/:id", async (req, res) => {
@@ -109,8 +123,16 @@ router.post("/update", async (req, res) => {
 // multer
 // req.file.originalname, req.file.filename
 router.post("/create", upload.single("upfile"), async (req, res) => {
+	//console.log(req.fileUploadCheck);
+	let oriFile = '';
+	let realFile = '';
+	if(req.file) {
+		oriFile = req.file.originalname;
+		realFile = req.file.filename;
+	}
+
 	let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?, orifile=?, realfile=?";
-	let val = [req.body.title, req.body.writer, new Date(), req.body.content, req.file.originalname, req.file.filename];
+	let val = [req.body.title, req.body.writer, new Date(), req.body.content, oriFile, realFile];
 	const connect = await pool.getConnection();
 	const result = await connect.query(sql, val);
 	connect.release();
