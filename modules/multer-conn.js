@@ -14,7 +14,7 @@ const destination = (req, file, cb) => {
 
 const filename = (req, file, cb) => {
     //cb(null, file.fieldname + '-' + Date.now());
-    cb(null, getFile(file.fieldname).newName);
+    cb(null, getFile(file.originalname));
 }
 
 //
@@ -35,10 +35,19 @@ const filename = (req, file, cb) => {
 //
 const storage = multer.diskStorage({destination, filename});
 
+// TypeError: storage.single is not a function
+// at Object.<anonymous> (C:\Users\Administrator\Documents\node-es6\04.pug\router\pug.js:107:32)
+const upload = multer({storage});
 
 function getPath() {
     // C:\Users\Administrator\Documents\node-es6\04.pug\modules
-    let newPath = path.join(__dirname, "../uploads"+makePath());
+    let newPath = path.join(__dirname, "../uploads/"+makePath());
+
+    // https://nodejs.org/dist/latest-v12.x/docs/api/fs.html
+    if(!fs.existsSync(newPath)) {
+        fs.mkdirSync(newPath);
+    }
+    return newPath;
 }
 
 // C:\Users\Administrator\Documents\node-es6\04.pug\uploads
@@ -48,7 +57,7 @@ function makePath() {
     let d = new Date();
     let year = d.getFullYear(); // 2020
     let month = d.getMonth();   // 0-11
-    return year.substr(2) + zp(month+1);
+    return String(year).substr(2) + zp(month+1);
 }
 
 function zp(d) {
@@ -59,13 +68,9 @@ function getFile(oriFile) {
     let ext = path.extname(oriFile);  // .jpg
     let name = path.basename(oriFile, ext);
     let f1 = makePath();       // 2001
-    let f2 = Date().now();     // timestamp
+    let f2 = Date.now();     // timestamp
     let f3 = Math.floor(Math.random() * 90) + 10; // 10 ~ 99
-    return {
-        newName: f1 + "-" + f2 + "-" + f3 + ext,
-        newExt: ext,
-        newFile: f1 + "-" + f2 + "-" + f3
-    }
+    return f1 + "-" + f2 + "-" + f3 + ext;
 }
 
-
+module.exports = {upload};

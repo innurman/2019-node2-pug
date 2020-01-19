@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { pool, sqlErr } = require('../modules/mysql-conn');
-console.log(__dirname);
+const path = require('path');
+const { pool, sqlErr } = require(path.join(__dirname,'../modules/mysql-conn'));
+// 비구조화 할당 
+const { upload } = require(path.join(__dirname, '../modules/multer-conn'));
+//console.log(__dirname);
 
 /*
 /pug/update/4 <- 요청처리시
@@ -37,12 +40,14 @@ router.get("/view/:id", async (req, res) => {
 	let vals = {
 		title: "게시글 상세 보기",
 	}
-	console.log(req.headers);
-	console.log(req.headers.hot.split[':']);
+	//console.log(req.headers);
+	//console.log(req.headers.hot.split[':']);
 	let id = req.params.id;
-	let sql = "SELECT * FROM board WHERE id="+id;
 	const connect = await pool.getConnection();
-	const result = await connect.query(sql);
+	let sql = "UPDATE board SET rnum = rnum + 1 WHERE id="+id;
+	let result = await connect.query(sql);
+	sql = "SELECT * FROM board WHERE id="+id;
+	result = await connect.query(sql);
 	connect.release();
 	vals.data = result[0][0];
 	res.render("view.pug", vals);
@@ -92,9 +97,20 @@ router.post("/update", async (req, res) => {
 	}
 });
 
-router.post("/create", async (req, res) => {
-	let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?";
-	let val = [req.body.title, req.body.writer, new Date(), req.body.content];
+// router.post("/create", async (req, res) => {
+// 	let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?";
+// 	let val = [req.body.title, req.body.writer, new Date(), req.body.content];
+// 	const connect = await pool.getConnection();
+// 	const result = await connect.query(sql, val);
+// 	connect.release();
+// 	res.redirect("/pug");
+// });
+
+// multer
+// req.file.originalname, req.file.filename
+router.post("/create", upload.single("upfile"), async (req, res) => {
+	let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?, orifile=?, realfile=?";
+	let val = [req.body.title, req.body.writer, new Date(), req.body.content, req.file.originalname, req.file.filename];
 	const connect = await pool.getConnection();
 	const result = await connect.query(sql, val);
 	connect.release();
