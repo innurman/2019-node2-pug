@@ -22,8 +22,11 @@ router.get("/create", async (req, res) => {
     res.json(result);
 });
 
+http://127.0.0.1:3000/user/get
 router.get("/get", async (req, res) => {
-    let result = await User.findAll();
+    let result = await User.findAll({
+        order: [["id", "desc"]]
+    });
     res.json(result);
 });
 

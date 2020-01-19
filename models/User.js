@@ -4,16 +4,19 @@ const { sequelize, Sequelize } = require(path.join(__dirname, "../modules/sequel
 // See the https://sequelize.org/master/identifiers
 class User extends Sequelize.Model {}
 
-
-User.init({
-    username: {type: Sequelize.STRING},
-    userid: {type: Sequelize.STRING},
-    age: {type: Sequelize.INTEGER},
-}, {
-    sequelize,
-    modelName: "user"
+// to Promise()
+sequelize.authenticate().then(() => {
+	User.init({
+		username: {type: Sequelize.STRING},
+		userid: {type: Sequelize.STRING},
+		age: {type: Sequelize.INTEGER},
+	}, {
+		sequelize,
+		modelName: "user"
+	});
+	User.sync({force: false});
 });
-User.sync({force: false});
+
 
 
 // C:\Users\Administrator\Documents\node-es6\04.pug\modules
